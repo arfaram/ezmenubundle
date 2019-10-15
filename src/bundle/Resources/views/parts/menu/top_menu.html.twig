@@ -1,0 +1,250 @@
+{% extends 'knp_menu_base.html.twig' %}
+
+{% trans_default_domain 'menu' %}
+
+{% macro attributes(attributes) %}
+    {% for name, value in attributes %}
+        {%- if value is not none and value is not same as(false) -%}
+            {{- ' %s="%s"'|format(name, value is same as(true) ? name|e : value|e)|raw -}}
+        {%- endif -%}
+    {%- endfor -%}
+{% endmacro %}
+
+{% block compressed_root %}
+    {% spaceless %}
+        {{ block('root') }}
+    {% endspaceless %}
+{% endblock %}
+
+{% block root %}
+    {% set listAttributes = item.childrenAttributes %}
+        {{ block('list') }}
+{% endblock %}
+
+{% block list %}
+{% if item.parent == null  %}
+    <div id="menu_area" class="menu-area">
+        <div class="container">
+            <div class="row">
+                <nav class="navbar navbar-light navbar-expand-lg mainmenu" aria-labelledby="navbarDropdown">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        {% if item.hasChildren and options.depth is not same as(0) and item.displayChildren %}
+                            {% import _self as knp_menu %}
+                            <ul class="navbar-nav mr-auto">
+                                    {{ block('children') }}
+                                </ul>
+                        {% endif %}
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    {{ block('style') }}
+{% else %}
+    {% if item.hasChildren and options.depth is not same as(0) and item.displayChildren %}
+        {% import _self as knp_menu %}
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {{ block('children') }}
+        </ul>
+    {% endif %}
+{% endif %}
+
+
+{% endblock %}
+
+{% block children %}
+    {# save current variables #}
+    {% set currentOptions = options %}
+    {% set currentItem = item %}
+    {# update the depth for children #}
+    {% if options.depth is not none %}
+        {% set options = options|merge({'depth': currentOptions.depth - 1}) %}
+    {% endif %}
+    {# update the matchingDepth for children #}
+    {% if options.matchingDepth is not none and options.matchingDepth > 0 %}
+        {% set options = options|merge({'matchingDepth': currentOptions.matchingDepth - 1}) %}
+    {% endif %}
+    {% for item in currentItem.children %}
+        {{ block('item') }}
+    {% endfor %}
+    {# restore current variables #}
+    {% set item = currentItem %}
+    {% set options = currentOptions %}
+{% endblock %}
+
+{% block item %}
+    {% if item.displayed %}
+        {# building the class of the item #}
+        {%- set classes = item.attribute('class') is not empty ? [item.attribute('class')] : [] %}
+        {%- if matcher.isCurrent(item) %}
+            {%- set classes = classes|merge([options.currentClass]) %}
+        {%- elseif matcher.isAncestor(item, options.matchingDepth) %}
+            {%- set classes = classes|merge([options.ancestorClass]) %}
+        {%- endif %}
+        {%- if item.actsLikeFirst %}
+            {%- set classes = classes|merge([options.firstClass]) %}
+        {%- endif %}
+        {%- if item.actsLikeLast %}
+            {%- set classes = classes|merge([options.lastClass]) %}
+        {%- endif %}
+
+         {% if item.hasChildren %}
+            {%- set classes = classes|merge(['dropdown']) %}
+        {% endif %}
+
+        {# Mark item as "leaf" (no children) or as "branch" (has children that are displayed) #}
+        {% if item.hasChildren and options.depth is not same as(0) %}
+            {% if options.branch_class is not empty and item.displayChildren %}
+                {%- set classes = classes|merge([options.branch_class]) %}
+            {% endif %}
+        {% elseif options.leaf_class is not empty %}
+            {%- set classes = classes|merge([options.leaf_class]) %}
+
+        {%- endif %}
+
+        {# more simpler than below#}
+        {% if item.getExtra('activeLink')  %}
+            {%- set classes = classes|merge([options.currentClass]) %}
+        {% endif%}
+        {#
+        {% if item.getExtra('optionPathString')[item.getExtra('subItemDepth')] is defined and item.getExtra('subItemPathString')[item.getExtra('subItemDepth')] ==  item.getExtra('optionPathString')[item.getExtra('subItemDepth')]   %}
+            {%- set classes = classes|merge([options.currentClass]) %}
+        {% endif%}
+        #}
+
+        {%- set attributes = item.attributes %}
+        {%- if classes is not empty %}
+            {%- set attributes = attributes|merge({'class': classes|join(' ')}) %}
+        {%- endif %}
+        {# displaying the item #}
+        {% import _self as knp_menu %}
+
+                <li{{ knp_menu.attributes(attributes) }}>
+                    {# check symfony route (added by EventListner) and repository links. This render <span> for the actually route#}
+                    {%- if item.uri is not empty and (not matcher.isCurrent(item) and options.currentAsLink) and (item.getExtra('thisLocationId') != item.getExtra('itemlocationId') or item.getExtra('thisLocationId') == '' ) %}
+                    {{ block('linkElement') }}
+                    {%- else %}
+                    {{ block('spanElement') }}
+                    {%- endif %}
+
+                    {# works only with repository links #}
+                    {#
+                        {%- if item.getExtra('thisLocationId') == item.getExtra('itemlocationId') and not options.currentAsLink and item.getExtra('thisLocationId') %}
+
+                            {{ block('spanElement') }}
+                        {%- else %}
+                            {{ block('linkElement') }}
+                        {%- endif %}
+                    #}
+
+                    {# render the list of children#}
+            {%- set childrenClasses = item.childrenAttribute('class') is not empty ? [item.childrenAttribute('class')] : [] %}
+            {%- set childrenClasses = childrenClasses|merge(['menu_level_' ~ item.level]) %}
+            {%- set listAttributes = item.childrenAttributes|merge({'class': childrenClasses|join(' ') }) %}
+
+            {{ block('list') }}
+        </li>
+    {% endif %}
+{% endblock %}
+
+{% block linkElement %}
+    {% import _self as knp_menu %}
+    <a href="{{ item.uri }}"{{ knp_menu.attributes(item.linkAttributes) }} {% if item.getExtra('activeLink')  %} class="{{ options.currentClass }}"{% endif%}>{{ block('label') }}</a>
+{% endblock %}
+
+{% block spanElement %}{% import _self as knp_menu %}<span{{ knp_menu.attributes(item.labelAttributes) }} {% if item.getExtra('activeLink')  %} class="{{ options.currentClass }}"{% endif%}>{{ block('label') }}</span>{% endblock %}
+
+{% block label %}{% if options.allow_safe_labels and item.getExtra('safe_label', false) %}{{ item.label|trans|raw }}{% else %}{{ item.label|trans }}{% endif %}{% endblock %}
+
+{% block style %}
+    {# move this part to stye and js files - Its just a demo template that you can override it#}
+    <style>
+        /*.mainmenu .active a:focus,*/
+        /*.mainmenu .active a:hover,*/
+        .mainmenu li a:hover,
+        .mainmenu li a:focus,
+        /*.navbar-default .navbar-nav>.show>a,*/
+        /*.navbar-default .navbar-nav>.show>a:focus,*/
+        /*.navbar-default .navbar-nav>.show>a:hover,*/
+        /*.mainmenu ul li.active span,*/
+        .mainmenu li.active span.active,
+        .mainmenu li.active a.active
+
+        {color: #f15a22;outline: 0;text-decoration:none; padding:15px; display: block}
+
+        .menu-area{background: #ffffff}
+        .dropdown-menu{padding:0;margin:0;border:0 solid transition!important;border:0 solid rgba(0,0,0,.15);border-radius:0;-webkit-box-shadow:none!important;box-shadow:none!important}
+
+        .mainmenu a,
+        .navbar-default
+        .navbar-nav > li > a,
+        .mainmenu ul li a ,
+        .navbar-expand-lg .navbar-nav .nav-link
+        {color:#000000;font-size:16px;padding:15px;font-family:'Roboto',sans-serif;display: block !important;}
+
+        /******************************Drop-down menu work on hover**********************************/
+        .mainmenu{background: none;border: 0 solid;margin: 0;padding: 0;min-height:20px;width: 100%;}
+
+        @media only screen and (max-width: 992px) {
+            .mainmenu .collapse ul ul, .mainmenu .collapse ul ul.dropdown-menu {
+                background: #CCCCCC;
+            }
+
+            .mainmenu .collapse ul ul ul, .mainmenu .collapse ul ul ul.dropdown-menu {
+                background: #CCCCCC;
+                position:relative;top:100%;min-width:300px;display:none;left:0;
+
+            }
+
+            .mainmenu .collapse ul ul ul ul, .mainmenu .collapse ul ul ul ul.dropdown-menu {
+                background: #CCCCCC
+            }
+
+        }
+        @media only screen and (min-width: 992px) {
+
+            .mainmenu .collapse ul ul ul{position:relative;top:0;min-width:300px;display:none; padding-left: 20px}
+        }
+
+
+            @media only screen and (min-width: 767px) {
+            .mainmenu .collapse ul li:hover> ul{display:block}
+            .mainmenu .collapse ul ul{position:relative;top:100%;min-width:300px;display:none;padding-left: 20px}
+            /*******/
+            .mainmenu .collapse ul ul li{position:relative}
+            .mainmenu .collapse ul ul li:hover> ul{display:block}
+            .mainmenu .collapse ul ul ul{position:relative;top:0;left:50%;display:none;}
+            /*******/
+            .mainmenu .collapse ul ul ul li{position:relative}
+            .mainmenu .collapse ul ul ul li:hover ul{display:block}
+            .mainmenu .collapse ul ul ul ul{position:relative;top:0;left:-20%;min-width:300px;display:none;z-index:1}
+
+        }
+        @media only screen and (max-width: 767px) {
+            .navbar-nav .show .dropdown-menu .dropdown-menu > li > a{padding:16px 15px 16px 35px}
+            .navbar-nav .show .dropdown-menu .dropdown-menu .dropdown-menu > li > a{padding:16px 15px 16px 45px}
+        }
+    </style>
+    <script>
+        (function($){
+            $('.dropdown-menu a.dropdown-toggle').on('click', function(e) {
+                if (!$(this).next().hasClass('show')) {
+                    $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+                }
+                var $subMenu = $(this).next(".dropdown-menu");
+                $subMenu.toggleClass('show');
+
+                $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+                    $('.dropdown-submenu .show').removeClass("show");
+                });
+
+                return false;
+            });
+        })(jQuery)
+    </script>
+{% endblock %}
+
+

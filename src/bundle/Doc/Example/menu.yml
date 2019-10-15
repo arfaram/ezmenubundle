@@ -1,0 +1,36 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    EzPlatform\Menu\MenuItemFactory: ~
+    EzPlatform\Menu\MenuItems: ~
+
+    # Main navigation
+    EzPlatform\Menu\MainMenuBuilder:
+        public: true
+        tags:
+            - { name: 'knp_menu.menu_builder', method: 'build', alias: 'site.main_menu' }
+
+
+    ##############EXAMPLES##############
+
+    # Add menu using locationId or parentLocationId
+    EzPlatform\MenuBundle\Doc\Example\FooterMenuBuilder:
+        public: true
+        tags:
+            - { name: 'knp_menu.menu_builder', method: 'build', alias: 'site.footer_menu' }
+
+    # Add static menu
+    EzPlatform\MenuBundle\Doc\Example\StaticMenuBuilder:
+        public: true
+        tags:
+            - { name: 'knp_menu.menu_builder', method: 'build', alias: 'site.static_menu' }
+
+    # Add items to existing menu
+    EzPlatform\MenuBundle\Doc\Example\EventListener\ExtraMainMenuListener:
+        tags:
+            #- { name: 'kernel.event_listener', event: 'site.main_menu', method: 'onMenuConfigure' }
+            # Or
+            - { name: 'kernel.event_listener', event: 'site.static_menu', method: 'onMenuConfigure' }

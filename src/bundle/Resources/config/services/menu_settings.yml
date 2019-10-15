@@ -1,0 +1,3 @@
+parameters:
+    #array default main menu contentType items
+    main.default.contenttypes_identifier.menu: ~
