@@ -75,8 +75,7 @@ class FooterMenuBuilder extends AbstractBuilder
             ]
         );
 
-        if (!isset($options['level']))
-        {
+        if (!isset($options['level'])) {
             throw new \Exception('You should specify the level in the template');
         }
 
@@ -85,13 +84,10 @@ class FooterMenuBuilder extends AbstractBuilder
 
         $this->menuItems->setLevel($options['level']);
 
-        if (!isset($options['startLocationId']) and  !$this->configResolver->hasParameter( 'location_id.menu', $options['level']))
-        {
+        if (!isset($options['startLocationId']) and  !$this->configResolver->hasParameter('location_id.menu', $options['level'])) {
             throw new \Exception('You should specify the option "startLocationId" in the template or define it in parameters in "level.default.location_id.menu".');
-        }
-        else
-        {
-        $startLocation = isset($options['startLocationId']) ? $options['startLocationId'] : $this->configResolver->getParameter('location_id.menu', $options['level']);
+        } else {
+            $startLocation = isset($options['startLocationId']) ? $options['startLocationId'] : $this->configResolver->getParameter('location_id.menu', $options['level']);
         }
 
         $menu = $this->menuItems->createMenu(

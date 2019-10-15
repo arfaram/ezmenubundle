@@ -14,7 +14,6 @@ use JMS\TranslationBundle\Translation\TranslationContainerInterface;
  */
 class ExtraMainMenuListener implements TranslationContainerInterface
 {
-
     const MAIN_MENU_EXTRA_LINK = 'menu.main_shop';
 
     /**
@@ -33,7 +32,8 @@ class ExtraMainMenuListener implements TranslationContainerInterface
                     'translation_domain' => 'menu',
                 ],
 
-        ]);
+        ]
+        );
     }
 
     /**

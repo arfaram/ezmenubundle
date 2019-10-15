@@ -177,9 +177,9 @@ class MenuItems
 
             if (count($searchItems) > 0) {
                 $this->addLocationsToMenu(
-                $menu->getChild($location->id),
-                $searchItems,
-                $options
+                    $menu->getChild($location->id),
+                    $searchItems,
+                    $options
                 );
             }
         }
