@@ -14,6 +14,11 @@ services:
             - { name: 'knp_menu.menu_builder', method: 'build', alias: 'site.main_menu' }
 
 
+    # Extend Query, add custom query like visibility or add some sort clauses
+    EzPlatform\MenuBundle\Doc\Example\EventListener\PostQueryListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'main', method: 'afterQueryBuildConfigure' }
+
     ##############EXAMPLES##############
 
     # Add menu using locationId or parentLocationId

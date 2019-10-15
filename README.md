@@ -71,7 +71,7 @@ In the Pagelayout template add following code
     - Note: You clould use `depth` in knp_menu_render() parameters to control the subitem level to show when `displayChildrenWhenItemClicked:false` 
 - `level`: use `main` to render repository navigation. the value should be unique per menu. Using this option you can setup some criterion on ContentType and the ParentLocationId to fetch. See default _main_ settings in config/services/menu_settings.yml 
 
-Example:
+Example
 ```
 parameters:
     main.default.contenttypes_identifier.menu: [folder, products, article, product_item]
@@ -190,3 +190,40 @@ services:
             # Or
             - { name: kernel.event_listener, event: site.static_menu, method: onMenuConfigure }
 ```
+
+## Extending Queries using custom Criteria and Sort clauses
+
+The standard query is built in [MenuItems.php](https://github.com/arfaram/ezmenubundle/blob/master/src/lib/Menu/MenuItems.php)
+- The standard query consit of: `ContentTypeIdentifier` defined in parameteres, `Subtree` to fetch the subitems, `Depth` to limit the Subtree search, `LanguageCode` to fetch content in the right siteaccess language.  
+
+Since v1.1 there is an extension point introduced to add custom criteria, sortClauses, offset and more. You can find more about the properties in [Query.php](https://github.com/ezsystems/ezpublish-kernel/blob/master/eZ/Publish/API/Repository/Values/Content/Query.php)
+
+- To add or to amend existing criteria you can add an EventListener. An example is available in `Doc/Example/EventListener/PostQueryListener`
+
+```
+class PostQueryListener
+{
+    public function afterQueryBuildConfigure(PostQueryEvent $event)
+    {
+        $query = $event->getquery();
+
+        $query->filter->criteria[] = new Query\Criterion\Visibility(Query\Criterion\Visibility::VISIBLE);
+
+        $query->sortClauses = [new Priority(Query::SORT_ASC)];
+
+    }
+}
+```
+
+Finally, you have to tag your listener and assign it the right event name:
+
+```
+services:
+    EzPlatform\MenuBundle\Doc\Example\EventListener\PostQueryListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'main', method: 'afterQueryBuildConfigure' }
+```
+
+Please consider that the `event` name is the same that you should define in the `level` parameters
+
+> 'level': 'main'

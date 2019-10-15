@@ -9,10 +9,10 @@ use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
-use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
-use eZ\Publish\API\Repository\Values\Content\Query;
 use eZ\Publish\API\Repository\SearchService;
 use eZ\Publish\Core\Helper\TranslationHelper;
+use EzPlatform\MenuBundle\Events\PostQueryEvent;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Routing\RouterInterface;
 use Knp\Menu\ItemInterface;
 
@@ -41,6 +41,10 @@ class MenuItems
 
     /** @var string */
     protected $level;
+    /**
+     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     */
+    private $eventDispatcher;
 
     /**
      * MenuItems constructor.
@@ -51,6 +55,7 @@ class MenuItems
      * @param \eZ\Publish\Core\Helper\TranslationHelper $translationHelper
      * @param \Symfony\Component\Routing\RouterInterface $router
      * @param \EzPlatform\Menu\MenuItemFactory $factory
+     * @param \Symfony\Component\EventDispatcher\EventDispatcher $eventDispatcher
      */
     public function __construct(
         ConfigResolverInterface $configResolver,
@@ -59,7 +64,8 @@ class MenuItems
         SearchService $searchService,
         TranslationHelper $translationHelper,
         RouterInterface $router,
-        MenuItemFactory $factory
+        MenuItemFactory $factory,
+        EventDispatcher $eventDispatcher
     ) {
         $this->configResolver = $configResolver;
         $this->permissionResolver = $permissionResolver;
@@ -68,6 +74,7 @@ class MenuItems
         $this->translationHelper = $translationHelper;
         $this->router = $router;
         $this->factory = $factory;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -99,7 +106,8 @@ class MenuItems
         $items = $this->addLocationsToMenu(
             $menu,
             $this->getMenuItems(
-                $locationId
+                $locationId,
+                $options
             ),
             $options
         );
@@ -109,28 +117,37 @@ class MenuItems
 
     /**
      * @param $rootLocationId
+     * @param $options
      * @return array
      * @throws \eZ\Publish\API\Repository\Exceptions\InvalidArgumentException
      * @throws \eZ\Publish\API\Repository\Exceptions\NotFoundException
      * @throws \eZ\Publish\API\Repository\Exceptions\UnauthorizedException
      */
-    public function getMenuItems($rootLocationId): array
+    public function getMenuItems($rootLocationId, $options): array
     {
         $rootLocation = $this->locationService->loadLocation($rootLocationId);
 
         $query = new LocationQuery();
 
-        $query->query = new Criterion\LogicalAnd([
+        $query->filter = new Criterion\LogicalAnd([
             new Criterion\ContentTypeIdentifier($this->getLevelContentTypeIdentifierList()),
-            new Criterion\Visibility(Criterion\Visibility::VISIBLE),
             new Criterion\Location\Depth(Criterion\Operator::EQ, $rootLocation->depth + 1),
             new Criterion\Subtree($rootLocation->pathString),
             new Criterion\LanguageCode($this->contentLanguage()),
         ]);
-        $query->sortClauses = [new SortClause\Location\Priority(Query::SORT_DESC)];
+
+        $queryName = PostQueryEvent::$queryName = $options['level'];
+
+        $this->eventDispatcher->dispatch($queryName, $this->createPostQueryEvent($query));
+
         $query->performCount = false;
 
         return $this->searchService->findLocations($query)->searchHits;
+    }
+
+    protected function createPostQueryEvent(LocationQuery $query)
+    {
+        return new PostQueryEvent($query);
     }
 
     /**
@@ -173,7 +190,7 @@ class MenuItems
                 ]
             ));
 
-            $searchItems = $this->getMenuItems($location->id);
+            $searchItems = $this->getMenuItems($location->id, $options);
 
             if (count($searchItems) > 0) {
                 $this->addLocationsToMenu(
