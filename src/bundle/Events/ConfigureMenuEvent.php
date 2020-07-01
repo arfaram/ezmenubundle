@@ -6,7 +6,7 @@ namespace EzPlatform\MenuBundle\Events;
 
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event triggered after building main menus. Provides extensibility point for menus' customization.

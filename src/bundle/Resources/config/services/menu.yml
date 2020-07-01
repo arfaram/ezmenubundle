@@ -5,7 +5,10 @@ services:
         public: true
 
     EzPlatform\Menu\MenuItemFactory: ~
-    EzPlatform\Menu\MenuItems: ~
+
+    EzPlatform\Menu\MenuItems:
+        arguments:
+            $translationHelper: '@ezpublish.translation_helper'
 
     # Main navigation
     EzPlatform\Menu\MainMenuBuilder:
