@@ -7,7 +7,7 @@ namespace EzPlatform\Menu;
 use EzPlatform\MenuBundle\Events\ConfigureMenuEvent;
 use Knp\Menu\ItemInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 abstract class AbstractBuilder
 {
@@ -33,7 +33,7 @@ abstract class AbstractBuilder
      */
     protected function dispatchMenuEvent(string $name, Event $event): void
     {
-        $this->eventDispatcher->dispatch($name, $event);
+        $this->eventDispatcher->dispatch($event, $name);
     }
 
     /**

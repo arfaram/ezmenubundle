@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace EzPlatform\Menu;
 
 use eZ\Publish\API\Repository\PermissionResolver;
+use eZ\Publish\Core\Helper\TranslationHelper;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 use eZ\Publish\API\Repository\SearchService;
-use eZ\Publish\Core\Helper\TranslationHelper;
 use EzPlatform\MenuBundle\Events\PostQueryEvent;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Knp\Menu\ItemInterface;
 
@@ -42,7 +42,7 @@ class MenuItems
     /** @var string */
     protected $level;
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
@@ -65,7 +65,7 @@ class MenuItems
         TranslationHelper $translationHelper,
         RouterInterface $router,
         MenuItemFactory $factory,
-        EventDispatcher $eventDispatcher
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->configResolver = $configResolver;
         $this->permissionResolver = $permissionResolver;
@@ -138,7 +138,7 @@ class MenuItems
 
         $queryName = PostQueryEvent::$queryName = $options['level'];
 
-        $this->eventDispatcher->dispatch($queryName, $this->createPostQueryEvent($query));
+        $this->eventDispatcher->dispatch($this->createPostQueryEvent($query), $queryName);
 
         $query->performCount = false;
 
@@ -171,7 +171,7 @@ class MenuItems
                 return null;
             }
             $menu->addChild($this->factory->createItem(
-                $location->id,
+                (string) $location->id,
                 [
                     'label' => $this->translationHelper->getTranslatedContentNameByContentInfo($location->contentInfo),
                     'uri' => $this->router->generate($location),
