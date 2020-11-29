@@ -18,6 +18,12 @@ use Knp\Menu\ItemInterface;
 
 class MenuItems
 {
+    //iteration
+    private int $depth = 0;
+
+    //from options config
+    private int $limit = 0;
+
     /** @var ConfigResolverInterface */
     private $configResolver;
 
@@ -103,6 +109,8 @@ class MenuItems
      */
     public function createMenu(ItemInterface $menu, $locationId, array $options): ItemInterface
     {
+        $this->limit = $options['depth'] ?? $this->depth;
+
         $items = $this->addLocationsToMenu(
             $menu,
             $this->getMenuItems(
@@ -136,18 +144,16 @@ class MenuItems
             new Criterion\LanguageCode($this->contentLanguage()),
         ]);
 
-        $queryName = PostQueryEvent::$queryName = $options['level'];
-
-        $this->eventDispatcher->dispatch($this->createPostQueryEvent($query), $queryName);
-
         $query->performCount = false;
+
+        $this->eventDispatcher->dispatch($this->createPostQueryEvent($query, $options), $options['level']);
 
         return $this->searchService->findLocations($query)->searchHits;
     }
 
-    protected function createPostQueryEvent(LocationQuery $query)
+    protected function createPostQueryEvent(LocationQuery $query, array $options)
     {
-        return new PostQueryEvent($query);
+        return new PostQueryEvent($query, $options);
     }
 
     /**
@@ -162,6 +168,8 @@ class MenuItems
     private function addLocationsToMenu(ItemInterface $menu, array $searchHits, array $options)
     {
         foreach ($searchHits as $searchHit) {
+
+            /** @var \eZ\Publish\API\Repository\Values\Content\Location $location */
             $location = $searchHit->valueObject;
 
             try {
@@ -174,14 +182,14 @@ class MenuItems
                 (string) $location->id,
                 [
                     'label' => $this->translationHelper->getTranslatedContentNameByContentInfo($location->contentInfo),
-                    'uri' => $this->router->generate($location),
+                    'uri' => $this->router->generate('ez_urlalias', ['locationId' => $location->id]),
                     'attributes' => [
                         'class' => 'nav-location-' . $location->id
                     ],
                     'extras' => [
                         'itemlocationId' =>$location->id,
-                        'thisLocationId' => $options['thisLocationId'],
-                        'activeLink' => in_array($location->id, $this->getPathString($options['pathString']))
+                        'thisLocationId' => $options['thisLocationId'] ?? null,
+                        'activeLink' => isset($options['pathString']) ? in_array($location->id, $this->getPathString($options['pathString'])) : null
 
                     ],
                     #'display'=> ,
@@ -192,13 +200,17 @@ class MenuItems
 
             $searchItems = $this->getMenuItems($location->id, $options);
 
-            if (count($searchItems) > 0) {
-                $this->addLocationsToMenu(
-                    $menu->getChild($location->id),
-                    $searchItems,
-                    $options
-                );
+            if (count($searchItems) > 0 ) {
+                $this->depth++;
+                if ($this->depth < $this->limit ) {
+                    $this->addLocationsToMenu(
+                        $menu->getChild((string) $location->id),
+                        $searchItems,
+                        $options
+                    );
+                }
             }
+
         }
 
         return $menu;

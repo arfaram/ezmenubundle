@@ -13,6 +13,8 @@ class PostQueryListener
     {
         $query = $event->getquery();
 
+        //$fieldTypeIdentifier = $event->getOptions(); //add it to the $options. you might add an array instead
+
         $query->filter->criteria[] = new Query\Criterion\Visibility(Query\Criterion\Visibility::VISIBLE);
 
         $query->sortClauses = [new Priority(Query::SORT_ASC)];

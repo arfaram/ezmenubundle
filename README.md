@@ -19,16 +19,13 @@ Note: Be sure that [KnpMenuBundle](http://symfony.com/doc/master/bundles/KnpMenu
 ```
 composer require arfaram/ezmenubundle:^0.1
 ```
-- Activate the Bundle in AppKernel.php
+- Activate the Bundle in bundles.php
 
 ```
-    public function registerBundles()
-    {
-        $bundles = array(
-            new Knp\Bundle\MenuBundle\KnpMenuBundle(),
-            //...
-            new EzPlatform\MenuBundle\EzPlatformMenuBundle(),
-        );
+return [
+    Knp\Bundle\MenuBundle\KnpMenuBundle::class => ['all' => true],
+    //...
+    EzPlatform\MenuBundle\EzPlatformMenuBundle::class => [ 'all'=> true ],
 ```
 
   
@@ -45,6 +42,7 @@ In the Pagelayout template add following code
             'thisLocationId':location.id,
             'pathString':location.pathString,
             'displayChildrenWhenItemClicked': true,
+            'depth': 3,
             'level': 'main'
         }
         )%}
@@ -66,9 +64,10 @@ In the Pagelayout template add following code
 - `thisLocationId`: In the template it will add < link > (active) or < span > (inactive) link
 - `pathString`: Ìt is used to add an `active` css class in the current < li > path. See `currentClass` 
 - `displayChildrenWhenItemClicked`:
-    - True: It shows the subitem list of the current clicked item
-    - False: It shows all items in all levels
-    - Note: You clould use `depth` in knp_menu_render() parameters to control the subitem level to show when `displayChildrenWhenItemClicked:false` 
+    - true: It shows the subitem list of the current clicked item
+    - false: It shows all items in all levels
+    - ~Note: You clould use `depth` in knp_menu_render() parameters to control the subitem level to show when `displayChildrenWhenItemClicked:false`~
+- `depth`
 - `level`: use `main` to render repository navigation. the value should be unique per menu. Using this option you can setup some criterion on ContentType and the ParentLocationId to fetch. See default _main_ settings in config/services/menu_settings.yml 
 
 Example
