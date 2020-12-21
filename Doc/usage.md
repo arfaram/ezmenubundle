@@ -1,7 +1,7 @@
 
-- [Default usage- Template parameters](#default-usage-template-parameters)
-- [Custom usage - PHP Builder](#custom-usage-php-builder)
-- [Add additional items to the repository menu](#add-additional-items-to-the repository-menu)
+- [Default usage- Template parameters](#default-usage---template-parameters)
+- [Custom usage - PHP Builder](#custom-usage---php-builder)
+- [Add additional items to the repository menu](#add-additional-items-to-the-repository-menu)
 - [Menu with custom start locationId](#menu-with-custom-start-locationId)
 - [Static menu using knpMenuBundle (Symfony Routes)](#static-menu-using-knpMenuBundle-symfony-routes)
 
@@ -180,4 +180,4 @@ The service definition is available in `Doc/Example/menu.yaml`:`#Static menu usi
 
 Note: `site.static_menu`: You can instead use your own menu name 
 
-![EZ Platform static menu](images/static_menu.png "EZ Platform menu navigation")
+![EZ Platform static menu](Images/static_menu.png?raw=true "EZ Platform menu navigation")

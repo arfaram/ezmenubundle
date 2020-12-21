@@ -25,4 +25,4 @@
 
 ## Screenshot
 
-![EZ Platform menu](Doc/images/navigation_desktop.png "EZ Platform menu navigation")
+![EZ Platform menu](Doc/Images/navigation_desktop.png?raw=true "EZ Platform menu navigation")
