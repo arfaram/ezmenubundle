@@ -37,3 +37,19 @@ composer dumpautoload
 php bin/console c:c -e dev
 php bin/console c:c -e prod
 ```
+
+
+### Run webpack
+
+```
+yarn encore dev
+```
+
+**Note**
+
+Be sure that below Entrypoints are correctly generated:
+
+```
+    Entrypoint ezplatform-menu-js = runtime.js ezplatform-menu-js.js
+    Entrypoint ezplatform-menu-css = runtime.js ezplatform-menu-css.css ezplatform-menu-css.js
+```
