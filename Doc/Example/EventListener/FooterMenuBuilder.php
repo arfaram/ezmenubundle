@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EzPlatform\MenuBundle\Doc\Example;
+namespace EzPlatform\MenuExample\EventListener;
 
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use EzPlatform\Menu\AbstractBuilder;
@@ -12,11 +12,6 @@ use EzPlatform\Menu\MenuItems;
 use Knp\Menu\ItemInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Class FooterMenuBuilder
- *
- * @package EzPlatform\MenuBundle\Doc\Example
- */
 class FooterMenuBuilder extends AbstractBuilder
 {
     /* Main Menu / Content */
@@ -76,18 +71,24 @@ class FooterMenuBuilder extends AbstractBuilder
         );
 
         if (!isset($options['level'])) {
-            throw new \Exception('You should specify the level in the template');
+            throw new \Exception('You should specify the level name in the template');
         }
-
-
-        //$level = isset($options['level']) && $options['level'] ? $options['level'] : 'main';
 
         $this->menuItems->setLevel($options['level']);
 
-        if (!isset($options['startLocationId']) and  !$this->configResolver->hasParameter('location_id.menu', $options['level'])) {
-            throw new \Exception('You should specify the option "startLocationId" in the template or define it in parameters in "level.default.location_id.menu".');
-        } else {
-            $startLocation = isset($options['startLocationId']) ? $options['startLocationId'] : $this->configResolver->getParameter('location_id.menu', $options['level']);
+        if (!isset($options['thisLocationId']) && !$this->configResolver->hasParameter('thisLocationId.menu', $options['level'])) {
+            throw new \Exception('You should specify the option "thisLocationId" in the template or define it in parameters in '.$options['level'].'.default.thisLocationId.menu".');
+        }
+
+        $startLocation = '';
+
+        if (isset($options['thisLocationId'])) {
+            $startLocation = $options['thisLocationId'];
+        }
+
+        if ($this->configResolver->hasParameter('thisLocationId.menu', $options['level'])) {
+            $startLocation = $this->configResolver->getParameter('thisLocationId.menu', $options['level']);
+            $options['thisLocationId'] = $startLocation;
         }
 
         $menu = $this->menuItems->createMenu(

@@ -16,7 +16,8 @@
     "autoload": {
         "psr-4": {
             "EzPlatform\\MenuBundle\\": "src/bundle",
-            "EzPlatform\\Menu\\": "src/lib/Menu"
+            "EzPlatform\\Menu\\": "src/lib/Menu",
+            "EzPlatform\\MenuExample\\": "Doc/Example"
         }
     },
     "require": {

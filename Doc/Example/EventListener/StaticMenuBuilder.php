@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EzPlatform\MenuBundle\Doc\Example;
+namespace EzPlatform\MenuExample\EventListener;
 
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use EzPlatform\MenuBundle\Events\ConfigureMenuEvent;
@@ -12,10 +12,6 @@ use EzPlatform\Menu\MenuItems;
 use Knp\Menu\ItemInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- *
- * @see https://symfony.com/doc/current/bundles/KnpMenuBundle/menu_builder_service.html
- */
 class StaticMenuBuilder extends AbstractBuilder
 {
     /* Main Menu / Content */
@@ -65,16 +61,18 @@ class StaticMenuBuilder extends AbstractBuilder
         $menu = $this->factory->createItem('root');
 
         $menu->addChild(self::ITEM_ROOT, array('uri' => '/'));
-        $menu[self::ITEM_ROOT]->addChild('test', array('route' => 'ez_systems_test'));
-        $menu[self::ITEM_ROOT]->addChild('test1', array('route' => 'ez_systems_test_1'));
-        $menu[self::ITEM_ROOT]->addChild('test2', array('route' => 'ez_systems_test_2'));
+        //or use symfony route: ['route' => 'route_example']
+        $menu[self::ITEM_ROOT]->addChild('Shop', ['uri' => '/']);
+        $menu[self::ITEM_ROOT]->addChild('Live', ['uri' => '/']);
+        $menu[self::ITEM_ROOT]->addChild('Radio', ['uri' => '/']);
+        $menu[self::ITEM_ROOT]->addChild('Google', ['uri' => 'http://google.de']);
 
 
         $menu->addChild(
             'ez_link',
             [
                 'label' => 'ezlink.translation.key',
-                'uri' => 'http://ez.no',
+                'uri' => 'http://ibexa.co',
                 'linkAttributes' => [
                     'class' => 'test_class another_class',
                     'data-property' => 'value',

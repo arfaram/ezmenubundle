@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EzPlatform\MenuBundle\Doc\Example\EventListener;
+namespace EzPlatform\MenuExample\EventListener;
 
 use EzPlatform\MenuBundle\Events\ConfigureMenuEvent;
 use JMS\TranslationBundle\Model\Message;
@@ -26,7 +26,7 @@ class ExtraMainMenuListener implements TranslationContainerInterface
         $menu->addChild(
             self::MAIN_MENU_EXTRA_LINK,
             [
-                'route' => 'ez_systems_test',
+                'uri' => '/',
                 'label' => 'shop.translation.key',
                 'extras' => [
                     'translation_domain' => 'menu',

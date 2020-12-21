@@ -22,7 +22,8 @@ class EzPlatformMenuExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
-        $loader->load('services/menu_settings.yml');
+        $loader->load('services.yaml');
+        $loader->load('services/menu.yaml');
+        $loader->load('services/menu_settings.yaml');
     }
 }

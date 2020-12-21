@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EzPlatform\Menu;
 
 use eZ\Publish\API\Repository\PermissionResolver;
+use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\Core\Helper\TranslationHelper;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use eZ\Publish\API\Repository\LocationService;
@@ -18,38 +19,43 @@ use Knp\Menu\ItemInterface;
 
 class MenuItems
 {
-    //iteration
-    private int $depth = 0;
+    /** @var int  */
+    protected static $depth = 0;
 
-    //from options config
-    private int $limit = 0;
+    /** @var int  */
+    protected static $limit = 0;
 
-    /** @var ConfigResolverInterface */
+    /** @var  */
+    protected static $currentLocationId;
+
+    /** @var bool  */
+    protected static $currentLocationPathString = false;
+
+    /** @var string  */
+    protected static $level;
+
+    /** @var ConfigResolverInterface  */
     private $configResolver;
 
-    /** @var PermissionResolver */
+    /** @var PermissionResolver  */
     private $permissionResolver;
 
-    /** @var LocationService */
+    /** @var LocationService  */
     private $locationService;
 
     /** @var SearchService  */
     private $searchService;
 
-    /**  @var TranslationHelper */
+    /** @var TranslationHelper  */
     private $translationHelper;
 
-    /** @var RouterInterface */
+    /** @var RouterInterface  */
     private $router;
 
-    /** @var MenuItemFactory */
+    /** @var MenuItemFactory  */
     protected $factory;
 
-    /** @var string */
-    protected $level;
-    /**
-     * @var EventDispatcherInterface
-     */
+    /** @var EventDispatcherInterface  */
     private $eventDispatcher;
 
     /**
@@ -89,7 +95,7 @@ class MenuItems
      */
     public function setLevel($level): string
     {
-        return $this->level = $level;
+        return self::$level = $level;
     }
 
     /**
@@ -97,7 +103,7 @@ class MenuItems
      */
     public function getLevel(): string
     {
-        return $this->level;
+        return self::$level;
     }
 
     /**
@@ -109,7 +115,7 @@ class MenuItems
      */
     public function createMenu(ItemInterface $menu, $locationId, array $options): ItemInterface
     {
-        $this->limit = $options['depth'] ?? $this->depth;
+        self::$limit = $options['depth'] ?? self::$depth;
 
         $items = $this->addLocationsToMenu(
             $menu,
@@ -167,17 +173,28 @@ class MenuItems
      */
     private function addLocationsToMenu(ItemInterface $menu, array $searchHits, array $options)
     {
+        if(isset($options['location'])){
+            $currentLocation = $options['location'];
+            self::$currentLocationId = $currentLocation->id;
+            self::$currentLocationPathString = $currentLocation->pathString;
+        }
+
+        //BC
+        if(isset($options['thisLocationId'])){
+            $currentLocation = $this->locationService->loadLocation($options['thisLocationId']);
+            self::$currentLocationId = $options['thisLocationId'];
+            self::$currentLocationPathString = $currentLocation->pathString;
+        }
+        //BC
+        if(isset($options['displayChildrenWhenItemClicked'])){
+            $options['displayChildrenOnClick'] = $options['displayChildrenWhenItemClicked'];
+        }
+
         foreach ($searchHits as $searchHit) {
 
             /** @var \eZ\Publish\API\Repository\Values\Content\Location $location */
             $location = $searchHit->valueObject;
 
-            try {
-                $contentInfo = $location->contentInfo;
-                $this->permissionResolver->canUser('content', 'read', $contentInfo);
-            } catch (\Exception $e) {
-                return null;
-            }
             $menu->addChild($this->factory->createItem(
                 (string) $location->id,
                 [
@@ -188,12 +205,11 @@ class MenuItems
                     ],
                     'extras' => [
                         'itemlocationId' =>$location->id,
-                        'thisLocationId' => $options['thisLocationId'] ?? null,
-                        'activeLink' => isset($options['pathString']) ? in_array($location->id, $this->getPathString($options['pathString'])) : null
+                        'thisLocationId' => self::$currentLocationId,
+                        'activeLink' => self::$currentLocationPathString ? \in_array($location->id, $this->getPathString(self::$currentLocationPathString)) : null
 
                     ],
-                    #'display'=> ,
-                    'displayChildren'=> isset($options['displayChildrenWhenItemClicked']) && $options['displayChildrenWhenItemClicked'] ? in_array($location->id, $this->getPathString($options['pathString'])): true,
+                    'displayChildren'=> isset($options['displayChildrenOnClick']) && $options['displayChildrenOnClick'] ? \in_array($location->id, $this->getPathString(self::$currentLocationPathString)) : true,
 
                 ]
             ));
@@ -201,8 +217,8 @@ class MenuItems
             $searchItems = $this->getMenuItems($location->id, $options);
 
             if (count($searchItems) > 0 ) {
-                $this->depth++;
-                if ($this->depth < $this->limit ) {
+                self::$depth++;
+                if (self::$depth < self::$limit ) {
                     $this->addLocationsToMenu(
                         $menu->getChild((string) $location->id),
                         $searchItems,

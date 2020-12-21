@@ -1,3 +1,4 @@
-ezlink.translation.key: 'Go to eZ.no'
-menu.main_shop: Shop!!
-shop.translation.key: Shop!
+#example
+ezlink.translation.key: 'Ibexa.co'
+menu.main_shop: Shop
+shop.translation.key: Shop

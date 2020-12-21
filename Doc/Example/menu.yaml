@@ -1,0 +1,29 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    # Extend Query, add custom query like visibility or add some sort clauses
+    EzPlatform\MenuBundle\Doc\Example\EventListener\PostQueryListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'main', method: 'afterQueryBuildConfigure' }
+
+    ##############EXAMPLES##############
+
+    #Static menu using knpMenuBundle (Symfony Routes)
+    EzPlatform\MenuExample\EventListener\StaticMenuBuilder:
+        tags:
+            - { name: 'knp_menu.menu_builder', method: 'build', alias: 'site.static_menu' }
+
+    #Menu with custom start locationId
+    EzPlatform\MenuExample\EventListener\FooterMenuBuilder:
+        tags:
+            - { name: 'knp_menu.menu_builder', method: 'build', alias: 'site.footer_menu' }
+
+    # Add items to existing menu
+    EzPlatform\MenuExample\EventListener\ExtraMainMenuListener:
+        tags:
+            #- { name: 'kernel.event_listener', event: 'site.main_menu', method: 'onMenuConfigure' }
+            # Or
+            - { name: 'kernel.event_listener', event: 'site.static_menu', method: 'onMenuConfigure' }
