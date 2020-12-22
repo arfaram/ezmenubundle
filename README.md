@@ -11,7 +11,7 @@
 
 * Create siteaccess aware menu for frontend application
 * Can be used everywhere: Main, Footer, Category or Landingpage Block navigation
-* Callable from Twig template or PHP classes
+* Callable from Twig template or PHP classes (usefull for Headless and other template engines. see FAQ)
 * less configuration less coding
 * Many Events example and default twig template available for the start
 * Bundle using the same concept like backend navigation generation
@@ -25,6 +25,8 @@
 [Usage](Doc/usage.md)
 
 [Extend](Doc/extend.md)
+
+[FAQ](Doc/faq.md)
 
 [Changelog](Doc/changelog.md)
 
