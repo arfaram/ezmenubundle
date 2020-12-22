@@ -51,7 +51,7 @@ Add following code to the base layout
 - `displayChildrenOnClick`:
     - true: show subitems only when item is clicked
     - false: show all items in all levels. Performance issue might occur here. You have to use the `detph` option to limit the subtree depth
-- `depth`: subtree depth
+- `depth`: subtree depth (default 1)
 - `level`: the navigation name to use. The value should be unique per menu. In this example `main`.
 
 

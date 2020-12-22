@@ -2,15 +2,19 @@
 
 The default query is built using: 
 * `ContentTypeIdentifier`
-* `Subtree`
-* `Depth`
+* `ParentLocationId`
 * `LanguageCode`
 
-Only the`ContentTypeIdentifier` array and `Depth` value can be set respectively from the yaml and the template. More information in the [Default usage](usage.md#default-usage)
+Only the`ContentTypeIdentifier` array can be set from the configuration. More information in the [Default usage](usage.md#default-usage)
 
 It is possible to add a custom post query EventSubscriber or EventListener using the `PostQueryEvent`. The`$event->getquery()` provides the **default query** and the `$event->getOptions()` contains the **options** before execution. Now you can amend the original query or add custom criteria, sortClauses, limit, offset, performCount etc. Check Ibexa Documentation for query properties [Query.php](https://github.com/ezsystems/ezpublish-kernel/blob/master/eZ/Publish/API/Repository/Values/Content/Query.php)
 
-**Tip: You can inject options from the template, builder class or services/controllers(see PHP Integration usage)**
+**Note:** The **post query** listener:
+* will be dispatched in each subtree level. 
+* The default options(`depth`, `location` and `displayChildrenOnClick`) can not be changed here. 
+* This listener is the best place for additional criteria and custom options related to the searchService. Template options can be added one step before either in the builder class or from the template.
+
+**Tip: You can inject these options from the template, builder class or services/controllers(see PHP Integration usage)**
 
 Two similar examples are provided in this bundle: 
 
