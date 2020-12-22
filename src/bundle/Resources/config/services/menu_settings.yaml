@@ -1,4 +1,3 @@
 parameters:
     #array with contentType(s)
-    #main.default.contenttypes_identifier.menu: ~
-    main.default.contenttypes_identifier.menu: [landingpage_standard]
+    main.default.contenttypes_identifier.menu: ~

@@ -18,7 +18,7 @@ composer require arfaram/ezmenubundle
 
 ### Activate the Bundle in `bundles.php`
 
-```
+```php
 return [
     Knp\Bundle\MenuBundle\KnpMenuBundle::class => ['all' => true],
     //...

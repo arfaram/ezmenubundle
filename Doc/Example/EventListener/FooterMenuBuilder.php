@@ -14,6 +14,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class FooterMenuBuilder extends AbstractBuilder
 {
+
+//    private static $options = [
+//        'level' => 'footer',
+//        'depth' => 1,
+//        'criterionFieldIdentifier' => 'my_field'  //example how to pass parameters to the Post Query Listener. See extend document
+//    ];
+
     /* Main Menu / Content */
     const ITEM_CONTENT = 'main__content';
 

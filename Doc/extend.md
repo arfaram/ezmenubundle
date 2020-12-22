@@ -10,6 +10,8 @@ Only the`ContentTypeIdentifier` array and `Depth` value can be set respectively 
 
 It is possible to add a custom post query EventListener using the `PostQueryEvent`. The`$event->getquery()` contains the **default query** and **parameters options** before execution. Now you can amend the original query or add custom criteria, sortClauses, limit, offset, performCount etc. Check Ibexa Documentation for query properties [Query.php](https://github.com/ezsystems/ezpublish-kernel/blob/master/eZ/Publish/API/Repository/Values/Content/Query.php)
 
+**Tip: You can inject options from the template, builder class or services/controllers(see PHP Integration usage)**
+
 Two similar examples are provided in this bundle: 
 
 **EventSubscriber**:
@@ -43,7 +45,7 @@ class PostQuerySubscriber implements EventSubscriberInterface
     }
 }
 ```
-The EventSubscriber should have the `autoconfigure: true` option in the service definition. 
+The EventSubscriber should be defined using `autoconfigure: true` option in the service definition.
 
 **EventListener**:
 
@@ -67,7 +69,7 @@ class PostQueryListener
 }
 ```
 
-Next, Tag your post query listener and assign it the right level(event) name:
+Next, Tag the post query listener and assign it to the right level(event) name:
 
 ```
 services:

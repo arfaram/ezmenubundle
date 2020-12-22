@@ -1,25 +1,26 @@
 
-- [Default usage- Template parameters](#default-usage---template-parameters)
-- [Custom usage - PHP Builder](#custom-usage---php-builder)
+- [Default usage- Template integration](#default-usage---template-integration)
+- [Custom usage - Template integration](#custom-usage---template-integration)
+- [Custom usage - PHP integration](#custom-usage---php-integration)
 - [Add additional items to the repository menu](#add-additional-items-to-the-repository-menu)
 - [Menu with custom start locationId](#menu-with-custom-start-locationId)
 - [Static menu using knpMenuBundle (Symfony Routes)](#static-menu-using-knpMenuBundle-symfony-routes)
 
 **Note:** Check the [extend](extend.md) documentation for additional or custom search criterion and sort results.
 
-## Default usage - Template parameters
+## Default usage - Template integration
 
 Define first the ContentType(s) that has to be displayed in the navigation:
 
 _Example:_
-```
+```yaml
 parameters:
     main.default.contenttypes_identifier.menu: ['folder', 'products', 'article', 'product_item']
 ```
 
 Add following code to the base layout
 
-```
+```yaml
     {% if location is defined %}
         {% set menu = knp_menu_get(
             'site.main_menu',
@@ -63,7 +64,7 @@ default template: `top_menu.html.twig` delivered with this bundle.
 - `currentClass` : the custom css class for active < li > items
 
 
-## Custom usage - PHP Builder
+## Custom usage - Template integration
 One of the option is to define a custom menu `site.my_menu`using template options as described above **or** pass the different options using a custom builder class.
 
 The template definition will be limited to:
@@ -73,7 +74,7 @@ The template definition will be limited to:
 
 The options in the builder class can be defined like below example:
 
-```
+```php
     private static $options = [
         'level' => 'custom',
         'depth' => 1,
@@ -85,7 +86,7 @@ A custom builder example is provided in this bundle under `EzPlatform/Doc/Exampl
 
 The menu name should be also defined in 
 
-```
+```php
 protected function getConfigureEventName(): string
 {
     return ConfigureMenuEvent::$menuName = 'site.my_menu';
@@ -96,13 +97,48 @@ protected function getConfigureEventName(): string
 * `RequestStack`: to have access to the location `$request->attributes->get('location')` 
 * `ConfigResolverInterface`: it allows you to define above options as siteaccess aware parameters.
 
+## Custom usage - PHP integration
+
+The Knp `MenuProviderInterface` allows creation of Menu from Services, Controller etc. Below example gives an integration example:
+
+```php
+    /**
+     * @var \Knp\Menu\Provider\MenuProviderInterface
+     */
+    private  $menuServiceProvider;
+
+
+    public function __construct(
+        MenuProviderInterface $menuServiceProvider
+    ) {
+        $this->menuServiceProvider = $menuServiceProvider;
+    }
+```
+
+```php
+/** @var \Knp\Menu\MenuItem $menu */
+$menu = $this->menuServiceProvider->get('site.my_menu');
+```
+The options must be then defined in the builder class (see above section) or passed to the builder like below example
+
+```php
+    $menu = $this->menuServiceProvider->get(
+    'site.my_menu',
+     [
+      'level' => 'main', 
+      'depth' => 2,
+      ]);
+```
+
+A custom builder example is provided in this bundle under `EzPlatform/Doc/Example/EventListener/FooterMenuBuilder.php`
+
 ## Add additional items to the repository menu
 
 An example is provided in this bundle under `EzPlatform/Doc/Example/EventListener/ExtraMainMenuListener.php`
 
 Below service definition append a new menu item(s) to the existing `site.main_menu`
 
-```
+```yaml
 services:
     _defaults:
         autowire: true
@@ -128,7 +164,7 @@ services:
 An example is provided in this bundle under `EzPlatform/Doc/Example/EventListener/FooterMenuBuilder.php`
 
 Template:
-```
+```yaml
     {% if location is defined %}
         {% set menu = knp_menu_get(
             'site.footer_menu',
@@ -153,7 +189,7 @@ The service definition is available in `Doc/Example/menu.yaml`:`#Menu with custo
 
 - Add the `footer` level, `contenttypes_identifier` and the start locationId `thisLocationId` as parameters
 
-```
+```yaml
 parameters:
     footer.default.contenttypes_identifier.menu:
         - 'folder'
@@ -169,7 +205,7 @@ An example is provided in this bundle under `EzPlatform/Doc/Example/EventListene
 
 Template:
 
-```
+```yaml
     {{ knp_menu_render('site.static_menu', {
         'currentAsLink': false,
         'currentClass': 'active'
