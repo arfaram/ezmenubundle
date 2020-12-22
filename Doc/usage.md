@@ -6,7 +6,7 @@
 - [Menu with custom start locationId](#menu-with-custom-start-locationId)
 - [Static menu using knpMenuBundle (Symfony Routes)](#static-menu-using-knpMenuBundle-symfony-routes)
 
-**Note:** Check the [extend](extend.md) documentation for additional or custom search criterion and sort results.
+**Note:** Check the [extend](extend.md) documentation for additional or custom search criterion and sort clauses.
 
 ## Default usage - Template integration
 
@@ -65,7 +65,7 @@ default template: `top_menu.html.twig` delivered with this bundle.
 
 
 ## Custom usage - Template integration
-One of the option is to define a custom menu `site.my_menu`using template options as described above **or** pass the different options using a custom builder class.
+You can add your own menu using template options as described above **or** pass them  using a custom builder class.
 
 The template definition will be limited to:
 ```
@@ -93,13 +93,13 @@ protected function getConfigureEventName(): string
 }
 ```
 
-**Note:** below classes can be injected in the builder and they are very useful:
+**Tip:** below classes can be injected in the builder and they are very useful:
 * `RequestStack`: to have access to the location `$request->attributes->get('location')` 
 * `ConfigResolverInterface`: it allows you to define above options as siteaccess aware parameters.
 
 ## Custom usage - PHP integration
 
-The Knp `MenuProviderInterface` allows creation of Menu from Services, Controller etc. Below example gives an integration example:
+The Knp `MenuProviderInterface` allows creation of Menu from Services, Controllers etc. Below example gives an integration example:
 
 ```php
     /**
@@ -155,7 +155,7 @@ services:
             - { name: 'kernel.event_listener', event: 'site.main_menu', method: 'onMenuConfigure' }
 ```
 
-**Note:** It is possible to use similar Listener to remove or sort menu items.
+**Tip:** It is possible to use similar Listener to remove or sort menu items.
 
 ## Menu with custom start locationId
 

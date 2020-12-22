@@ -4,7 +4,7 @@
 
 # Menu Bundle for EzPlatform by Ibexa
 
-`EzPlatformMenuBundle` allows you to create multi level navigation. This bundle is implemented on the same way like the backend navigation and is siteaccess aware.
+`EzPlatformMenuBundle` allows you to create multi level navigation. This bundle is Event driven and implemented on the same way like the backend navigation and is siteaccess aware.
 
 
 ## Features

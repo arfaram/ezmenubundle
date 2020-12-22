@@ -1,6 +1,6 @@
 ## Requirement
 
-- eZPlatform 3.x (Open Source or EE)
+- eZ Platform 3.x (Open Source or EE)
 - PHP 7+
 - [KnpMenuBundle](http://symfony.com/doc/master/bundles/KnpMenuBundle/index.html) is installed and activated in `bundles.php`(available in default installation)
 
@@ -50,6 +50,6 @@ yarn encore dev
 Be sure that below Entrypoints are correctly generated:
 
 ```
-    Entrypoint ezplatform-menu-js = runtime.js ezplatform-menu-js.js
-    Entrypoint ezplatform-menu-css = runtime.js ezplatform-menu-css.css ezplatform-menu-css.js
+Entrypoint ezplatform-menu-js = runtime.js ezplatform-menu-js.js
+Entrypoint ezplatform-menu-css = runtime.js ezplatform-menu-css.css ezplatform-menu-css.js
 ```
